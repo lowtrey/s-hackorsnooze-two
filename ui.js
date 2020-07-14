@@ -1,13 +1,18 @@
-$(async function() {
+$(async function () {
   // cache some selectors we'll be using quite a bit
   const $allStoriesList = $("#all-articles-list");
   const $submitForm = $("#submit-form");
   const $filteredArticles = $("#filtered-articles");
+  const $favoritedArticles = $("#favorited-articles");
   const $loginForm = $("#login-form");
   const $createAccountForm = $("#create-account-form");
   const $ownStories = $("#my-articles");
+  const $navLeft = $("#nav-left");
   const $navLogin = $("#nav-login");
   const $navLogOut = $("#nav-logout");
+  const $navWelcome = $("#nav-welcome");
+  const $navUser = $("#nav-user-profile");
+  const $userProfile = $("#user-profile");
 
   // global storyList variable
   let storyList = null;
@@ -22,7 +27,7 @@ $(async function() {
    *  If successfully we will setup the user instance
    */
 
-  $loginForm.on("submit", async function(evt) {
+  $loginForm.on("submit", async function (evt) {
     evt.preventDefault(); // no page-refresh on submit
 
     // grab the username and password
@@ -42,7 +47,7 @@ $(async function() {
    *  If successfully we will setup a new user instance
    */
 
-  $createAccountForm.on("submit", async function(evt) {
+  $createAccountForm.on("submit", async function (evt) {
     evt.preventDefault(); // no page refresh
 
     // grab the required fields
@@ -61,7 +66,7 @@ $(async function() {
    * Log Out Functionality
    */
 
-  $navLogOut.on("click", function() {
+  $navLogOut.on("click", function () {
     // empty out local storage
     localStorage.clear();
     // refresh the page, clearing memory
@@ -72,7 +77,7 @@ $(async function() {
    * Event Handler for Clicking Login
    */
 
-  $navLogin.on("click", function() {
+  $navLogin.on("click", function () {
     // Show the Login and Create Account Forms
     $loginForm.slideToggle();
     $createAccountForm.slideToggle();
@@ -83,10 +88,49 @@ $(async function() {
    * Event handler for Navigation to Homepage
    */
 
-  $("body").on("click", "#nav-all", async function() {
+  $("body").on("click", "#nav-all", async function () {
     hideElements();
     await generateStories();
     $allStoriesList.show();
+  });
+
+  /**
+   * Event handler for Navigation to Add Story
+   */
+
+  $("body").on("click", "#nav-addstory", async function () {
+    hideElements();
+    await generateStories();
+    $submitForm.show();
+  });
+
+  /**
+   * Event handler for Navigation to Favorites
+   */
+
+  $("body").on("click", "#nav-favorites", async function () {
+    hideElements();
+    await generateStories();
+    $favoritedArticles.show();
+  });
+
+  /**
+   * Event handler for Navigation to My Stories
+   */
+
+  $("body").on("click", "#nav-mystories", async function () {
+    hideElements();
+    await generateStories();
+    $ownStories.show();
+  });
+  /**
+   * Event handler for Navigation to User Profile
+   */
+
+  $("body").on("click", "#nav-user-profile", async function () {
+    hideElements();
+    await generateStories();
+    $userProfile.show();
   });
 
   /**
@@ -178,17 +222,22 @@ $(async function() {
     const elementsArr = [
       $submitForm,
       $allStoriesList,
+      $favoritedArticles,
       $filteredArticles,
       $ownStories,
       $loginForm,
-      $createAccountForm
+      $createAccountForm,
+      $userProfile,
     ];
-    elementsArr.forEach($elem => $elem.hide());
+    elementsArr.forEach(($elem) => $elem.hide());
   }
 
   function showNavForLoggedInUser() {
     $navLogin.hide();
     $navLogOut.show();
+    $navLeft.show();
+    $navUser.text(currentUser.username);
+    $navWelcome.show();
   }
 
   /* simple function to pull the hostname from a URL */

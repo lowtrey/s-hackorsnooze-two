@@ -5,7 +5,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <title>Hack or Snooze</title>
+  <title>Hack or Snooze Dev</title>
   <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css"
     integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU" crossorigin="anonymous">
   <link rel="stylesheet" href="style.css" type="text/css">
@@ -14,6 +14,11 @@
 <body>
   <nav>
     <b><a class="nav-link navbar-brand" href="#" id="nav-all">Hack or Snooze</a></b>
+    <span class="hidden" id="nav-left">
+      <a class="main-nav-links" href="#" id="nav-addstory">Add Story</a>
+      |<a class="main-nav-links" href="#" id="nav-favorites">Favorites</a>
+      |<a class="main-nav-links" href="#" id="nav-mystories">My Stories</a>
+    </span>
     <a class="nav-link nav-right" href="#" id="nav-login">login/create user</a>
     <span class="nav-link nav-right hidden" id="nav-welcome">
       <a href="#" id="nav-user-profile"></a>
@@ -98,9 +103,9 @@
       <button type="submit">create account</button>
     </form>
   </section>
-  <section id="user-profile" class="container hidden">
-    <h4>User Profile Info</h4>
-    <section>
+  <section class="container">
+    <section id="user-profile" class="hidden">
+      <h4>User Profile Info</h4>
       <div id="profile-name">Name:</div>
       <div id="profile-username">Username:</div>
       <div id="profile-account-date">Account Created:</div>
