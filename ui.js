@@ -1,7 +1,7 @@
 $(async function () {
   // cache some selectors we'll be using quite a bit
   const $allStoriesList = $("#all-articles-list");
-  const $submitForm = $("#submit-form");
+  const $addStoryForm = $("#submit-form");
   const $filteredArticles = $("#filtered-articles");
   const $favoritedArticles = $("#favorited-articles");
   const $loginForm = $("#login-form");
@@ -21,6 +21,7 @@ $(async function () {
   let currentUser = null;
 
   await checkIfLoggedIn();
+  console.log(currentUser, storyList);
 
   /**
    * Event listener for logging in.
@@ -63,6 +64,35 @@ $(async function () {
   });
 
   /**
+   * Event listener for adding new story.
+   *  If successfully we will add a new story to the all stories list
+   *  and the user's own stories list.
+   */
+
+  $addStoryForm.on("submit", async function (evt) {
+    evt.preventDefault();
+
+    // grab the required fields
+    const submittedStory = {
+      author: $("#author").val(),
+      title: $("#title").val(),
+      url: $("#url").val(),
+    };
+
+    // call the addStory method, which calls the API and returns a newly created story
+    const newStory = await storyList.addStory(currentUser, submittedStory);
+    console.log(newStory);
+
+    hideElements();
+    $addStoryForm.trigger("reset");
+    await checkIfLoggedIn();
+    $allStoriesList.show();
+
+    // TODO: Consolidate code above to loginAndSubmitForm fonction
+    // loginAndSubmitForm();
+  });
+
+  /**
    * Log Out Functionality
    */
 
@@ -101,7 +131,8 @@ $(async function () {
   $("body").on("click", "#nav-addstory", async function () {
     hideElements();
     await generateStories();
-    $submitForm.show();
+    $allStoriesList.show();
+    $addStoryForm.slideDown();
   });
 
   /**
@@ -150,7 +181,7 @@ $(async function () {
     await generateStories();
 
     if (currentUser) {
-      showNavForLoggedInUser();
+      showElementsForLoggedInUser();
     }
   }
 
@@ -171,7 +202,7 @@ $(async function () {
     $allStoriesList.show();
 
     // update the navigation bar
-    showNavForLoggedInUser();
+    showElementsForLoggedInUser();
   }
 
   /**
@@ -191,6 +222,24 @@ $(async function () {
     for (let story of storyList.stories) {
       const result = generateStoryHTML(story);
       $allStoriesList.append(result);
+    }
+    generateOwnStories();
+  }
+
+  /**
+   * A function render the user's own stories.
+   */
+
+  function generateOwnStories() {
+    if (currentUser) {
+      // empty out that part of the page
+      $ownStories.empty();
+
+      // loop through all of our stories and generate HTML for them
+      for (let story of currentUser.ownStories) {
+        const result = generateStoryHTML(story);
+        $ownStories.append(result);
+      }
     }
   }
 
@@ -220,7 +269,7 @@ $(async function () {
 
   function hideElements() {
     const elementsArr = [
-      $submitForm,
+      $addStoryForm,
       $allStoriesList,
       $favoritedArticles,
       $filteredArticles,
@@ -232,12 +281,19 @@ $(async function () {
     elementsArr.forEach(($elem) => $elem.hide());
   }
 
-  function showNavForLoggedInUser() {
+  function showElementsForLoggedInUser() {
     $navLogin.hide();
     $navLogOut.show();
     $navLeft.show();
     $navUser.text(currentUser.username);
     $navWelcome.show();
+    showAccountInfo();
+  }
+
+  function showAccountInfo() {
+    $("#profile-name").text(currentUser.name);
+    $("#profile-username").text(currentUser.username);
+    $("#profile-account-date").text(currentUser.createdAt);
   }
 
   /* simple function to pull the hostname from a URL */
@@ -256,7 +312,6 @@ $(async function () {
   }
 
   /* sync current user information to localStorage */
-
   function syncCurrentUserToLocalStorage() {
     if (currentUser) {
       localStorage.setItem("token", currentUser.loginToken);
