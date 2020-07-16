@@ -21,7 +21,7 @@ $(async function () {
   let currentUser = null;
 
   await checkIfLoggedIn();
-  console.log(currentUser, storyList);
+  console.log(currentUser.favorites);
 
   /**
    * Event listener for logging in.
@@ -224,12 +224,12 @@ $(async function () {
       $allStoriesList.append(result);
     }
     generateOwnStories();
+    generateFavorites();
   }
 
   /**
    * A function render the user's own stories.
    */
-
   function generateOwnStories() {
     if (currentUser) {
       // empty out that part of the page
@@ -239,6 +239,22 @@ $(async function () {
       for (let story of currentUser.ownStories) {
         const result = generateStoryHTML(story);
         $ownStories.append(result);
+      }
+    }
+  }
+
+  /**
+   * A function render the user's favorite stories.
+   */
+  function generateFavorites() {
+    if (currentUser) {
+      // empty out that part of the page
+      $favoritedArticles.empty();
+
+      // loop through all of our stories and generate HTML for them
+      for (let story of currentUser.favorites) {
+        const result = generateStoryHTML(story);
+        $favoritedArticles.append(result);
       }
     }
   }
@@ -266,8 +282,29 @@ $(async function () {
     return storyMarkup;
   }
 
-  /* hide all elements in elementsArr */
+  /**
+   * Event handler for Favoriting Articles
+   */
+  $("body").on("click", "#favorite", async function (event) {
+    const favoriteId = $(event.target).parent().attr("id");
+    const isFavorite = currentUser.favorites.some(
+      (story) => story.storyId === favoriteId
+    );
 
+    const updatedUser = isFavorite
+      ? await currentUser.removeFavorite(favoriteId)
+      : await currentUser.addFavorite(favoriteId);
+
+    currentUser = updatedUser;
+
+    hideElements();
+    await generateStories();
+    $favoritedArticles.show();
+
+    // console.log(currentUser);
+  });
+
+  /* hide all elements in elementsArr */
   function hideElements() {
     const elementsArr = [
       $addStoryForm,
@@ -298,7 +335,6 @@ $(async function () {
   }
 
   /* simple function to pull the hostname from a URL */
-
   function getHostName(url) {
     let hostName;
     if (url.indexOf("://") > -1) {

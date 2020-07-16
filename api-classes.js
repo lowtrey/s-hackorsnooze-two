@@ -166,14 +166,50 @@ class User {
     return existingUser;
   }
 
-  // TODO: Complete this function
-  async addFavorite(token, username, storyId) {
-    const url = `${BASE_URL}/users/${username}/favorites/${storyId}`;
-    const result = await axios.post(url, {
-      token,
+  async addFavorite(storyId) {
+    const url = `${BASE_URL}/users/${this.username}/favorites/${storyId}`;
+    const response = await axios.post(url, {
+      token: this.loginToken,
     });
 
-    return result;
+    // instantiate the user from the API information
+    const updatedUser = new User(response.data.user);
+
+    // attach the token to the newUser instance for convenience
+    updatedUser.loginToken = this.loginToken;
+
+    // instantiate Story instances for the user's favorites and ownStories
+    updatedUser.favorites = response.data.user.favorites.map(
+      (s) => new Story(s)
+    );
+    updatedUser.ownStories = response.data.user.stories.map(
+      (s) => new Story(s)
+    );
+
+    return updatedUser;
+  }
+
+  async removeFavorite(storyId) {
+    const url = `${BASE_URL}/users/${this.username}/favorites/${storyId}`;
+    const response = await axios.delete(url, {
+      params: { token: this.loginToken },
+    });
+
+    // instantiate the user from the API information
+    const updatedUser = new User(response.data.user);
+
+    // attach the token to the newUser instance for convenience
+    updatedUser.loginToken = this.loginToken;
+
+    // instantiate Story instances for the user's favorites and ownStories
+    updatedUser.favorites = response.data.user.favorites.map(
+      (s) => new Story(s)
+    );
+    updatedUser.ownStories = response.data.user.stories.map(
+      (s) => new Story(s)
+    );
+
+    return updatedUser;
   }
 }
 
