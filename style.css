@@ -151,6 +151,10 @@ form > hr {
   cursor: pointer;
 }
 
+.star:hover {
+  color: gold;
+}
+
 .trash-can:hover {
   color: crimson;
 }

@@ -165,6 +165,16 @@ class User {
     );
     return existingUser;
   }
+
+  // TODO: Complete this function
+  async addFavorite(token, username, storyId) {
+    const url = `${BASE_URL}/users/${username}/favorites/${storyId}`;
+    const result = await axios.post(url, {
+      token,
+    });
+
+    return result;
+  }
 }
 
 /**
