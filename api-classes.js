@@ -4,7 +4,6 @@ const BASE_URL = "https://hack-or-snooze-v3.herokuapp.com";
  * This class maintains the list of individual Story instances
  *  It also has some methods for fetching, adding, and removing stories
  */
-
 class StoryList {
   constructor(stories) {
     this.stories = stories;
@@ -61,7 +60,6 @@ class StoryList {
  * The User class to primarily represent the current user.
  *  There are helper methods to signup (create), login, and getLoggedInUser
  */
-
 class User {
   constructor(userObj) {
     this.username = userObj.username;
@@ -138,7 +136,6 @@ class User {
    * This function uses the token & username to make an API request to get details
    *   about the user. Then it creates an instance of user with that info.
    */
-
   static async getLoggedInUser(token, username) {
     // if we don't have user info, return null
     if (!token || !username) return null;
@@ -166,34 +163,18 @@ class User {
     return existingUser;
   }
 
-  async addFavorite(storyId) {
+  async updateFavorites(storyId) {
     const url = `${BASE_URL}/users/${this.username}/favorites/${storyId}`;
-    const response = await axios.post(url, {
-      token: this.loginToken,
-    });
-
-    // instantiate the user from the API information
-    const updatedUser = new User(response.data.user);
-
-    // attach the token to the newUser instance for convenience
-    updatedUser.loginToken = this.loginToken;
-
-    // instantiate Story instances for the user's favorites and ownStories
-    updatedUser.favorites = response.data.user.favorites.map(
-      (s) => new Story(s)
+    const isFavorite = this.favorites.some(
+      (story) => story.storyId === storyId
     );
-    updatedUser.ownStories = response.data.user.stories.map(
-      (s) => new Story(s)
-    );
-
-    return updatedUser;
-  }
-
-  async removeFavorite(storyId) {
-    const url = `${BASE_URL}/users/${this.username}/favorites/${storyId}`;
-    const response = await axios.delete(url, {
-      params: { token: this.loginToken },
-    });
+    const response = isFavorite
+      ? await axios.delete(url, {
+          params: { token: this.loginToken },
+        })
+      : await axios.post(url, {
+          token: this.loginToken,
+        });
 
     // instantiate the user from the API information
     const updatedUser = new User(response.data.user);
@@ -216,7 +197,6 @@ class User {
 /**
  * Class to represent a single story.
  */
-
 class Story {
   /**
    * The constructor is designed to take an object for better readability / flexibility

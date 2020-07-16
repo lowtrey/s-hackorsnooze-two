@@ -21,15 +21,13 @@ $(async function () {
   let currentUser = null;
 
   await checkIfLoggedIn();
-  console.log(currentUser.favorites);
 
   /**
    * Event listener for logging in.
    *  If successfully we will setup the user instance
    */
-
   $loginForm.on("submit", async function (evt) {
-    evt.preventDefault(); // no page-refresh on submit
+    evt.preventDefault();
 
     // grab the username and password
     const username = $("#login-username").val();
@@ -47,7 +45,6 @@ $(async function () {
    * Event listener for signing up.
    *  If successfully we will setup a new user instance
    */
-
   $createAccountForm.on("submit", async function (evt) {
     evt.preventDefault(); // no page refresh
 
@@ -68,7 +65,6 @@ $(async function () {
    *  If successfully we will add a new story to the all stories list
    *  and the user's own stories list.
    */
-
   $addStoryForm.on("submit", async function (evt) {
     evt.preventDefault();
 
@@ -95,7 +91,6 @@ $(async function () {
   /**
    * Log Out Functionality
    */
-
   $navLogOut.on("click", function () {
     // empty out local storage
     localStorage.clear();
@@ -106,7 +101,6 @@ $(async function () {
   /**
    * Event Handler for Clicking Login
    */
-
   $navLogin.on("click", function () {
     // Show the Login and Create Account Forms
     $loginForm.slideToggle();
@@ -115,9 +109,16 @@ $(async function () {
   });
 
   /**
+   * Event Handler for Active Nav Link
+   */
+  $("nav a").on("click", function () {
+    $(this).closest("nav").find("a.active").removeClass("active");
+    $(this).addClass("active");
+  });
+
+  /**
    * Event handler for Navigation to Homepage
    */
-
   $("body").on("click", "#nav-all", async function () {
     hideElements();
     await generateStories();
@@ -127,7 +128,6 @@ $(async function () {
   /**
    * Event handler for Navigation to Add Story
    */
-
   $("body").on("click", "#nav-addstory", async function () {
     hideElements();
     await generateStories();
@@ -138,7 +138,6 @@ $(async function () {
   /**
    * Event handler for Navigation to Favorites
    */
-
   $("body").on("click", "#nav-favorites", async function () {
     hideElements();
     await generateStories();
@@ -148,16 +147,15 @@ $(async function () {
   /**
    * Event handler for Navigation to My Stories
    */
-
   $("body").on("click", "#nav-mystories", async function () {
     hideElements();
     await generateStories();
     $ownStories.show();
   });
+
   /**
    * Event handler for Navigation to User Profile
    */
-
   $("body").on("click", "#nav-user-profile", async function () {
     hideElements();
     await generateStories();
@@ -165,10 +163,23 @@ $(async function () {
   });
 
   /**
+   * Event handler for Favoriting Articles
+   */
+  $("body").on("click", "#favorite", async function (event) {
+    const favoriteId = $(event.target).parent().attr("id");
+    const updatedUser = await currentUser.updateFavorites(favoriteId);
+
+    currentUser = updatedUser;
+
+    hideElements();
+    await generateStories();
+    $allStoriesList.show();
+  });
+
+  /**
    * On page load, checks local storage to see if the user is already logged in.
    * Renders page information accordingly.
    */
-
   async function checkIfLoggedIn() {
     // let's see if we're logged in
     const token = localStorage.getItem("token");
@@ -188,7 +199,6 @@ $(async function () {
   /**
    * A rendering function to run to reset the forms and hide the login info
    */
-
   function loginAndSubmitForm() {
     // hide the forms for logging in and signing up
     $loginForm.hide();
@@ -209,7 +219,6 @@ $(async function () {
    * A rendering function to call the StoryList.getStories static method,
    *  which will generate a storyListInstance. Then render it.
    */
-
   async function generateStories() {
     // get an instance of StoryList
     const storyListInstance = await StoryList.getStories();
@@ -262,7 +271,6 @@ $(async function () {
   /**
    * A function to render HTML for an individual Story instance
    */
-
   function generateStoryHTML(story) {
     let hostName = getHostName(story.url);
 
@@ -281,28 +289,6 @@ $(async function () {
 
     return storyMarkup;
   }
-
-  /**
-   * Event handler for Favoriting Articles
-   */
-  $("body").on("click", "#favorite", async function (event) {
-    const favoriteId = $(event.target).parent().attr("id");
-    const isFavorite = currentUser.favorites.some(
-      (story) => story.storyId === favoriteId
-    );
-
-    const updatedUser = isFavorite
-      ? await currentUser.removeFavorite(favoriteId)
-      : await currentUser.addFavorite(favoriteId);
-
-    currentUser = updatedUser;
-
-    hideElements();
-    await generateStories();
-    $favoritedArticles.show();
-
-    // console.log(currentUser);
-  });
 
   /* hide all elements in elementsArr */
   function hideElements() {
