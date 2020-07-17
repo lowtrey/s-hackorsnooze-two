@@ -54,6 +54,18 @@ class StoryList {
 
     return response;
   }
+
+  async deleteStory(token, storyId) {
+    if (!storyId) return null;
+
+    const url = `${BASE_URL}/stories/${storyId}`;
+
+    const response = await axios.delete(url, {
+      params: { token },
+    });
+
+    return response;
+  }
 }
 
 /**

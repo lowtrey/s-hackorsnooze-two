@@ -177,6 +177,25 @@ $(async function () {
   });
 
   /**
+   * Event handler for Deleting Articles
+   */
+  $("body").on("click", "#my-articles #delete", async function (event) {
+    console.log("Deleted!");
+    const deleteId = $(event.target).parent().attr("id");
+    const response = await storyList.deleteStory(
+      currentUser.loginToken,
+      deleteId
+    );
+
+    console.log(response);
+
+    hideElements();
+    await checkIfLoggedIn();
+    await generateStories();
+    $allStoriesList.show();
+  });
+
+  /**
    * On page load, checks local storage to see if the user is already logged in.
    * Renders page information accordingly.
    */
@@ -278,6 +297,7 @@ $(async function () {
     const storyMarkup = $(`
       <li id="${story.storyId}">
         <i id="favorite" class="fas fa-star star"></i>
+        <i id="delete" class="fas fa-trash trash-can"></i>
         <a class="article-link" href="${story.url}" target="a_blank">
           <strong>${story.title}</strong>
         </a>
