@@ -193,9 +193,9 @@ form > hr {
   margin-left: 25px;
 }
 
-#favorited-articles,
+#favorites,
 #filtered-articles,
-#my-articles {
+#myStories {
   list-style: none;
   padding-left: 20px;
 }

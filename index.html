@@ -13,22 +13,22 @@
 
 <body>
   <nav>
-    <b><a class="nav-link navbar-brand" href="#" id="nav-all">Hack or Snooze</a></b>
+    <b><a class="nav-link navbar-brand" href="#" id="nav-allStories">Hack or Snooze</a></b>
     <span class="hidden" id="nav-left">
-      <a class="main-nav-links" href="#" id="nav-addstory">Add Story</a>
+      <a class="main-nav-links" href="#" id="nav-addStory">Add Story</a>
       |<a class="main-nav-links" href="#" id="nav-favorites">Favorites</a>
-      |<a class="main-nav-links" href="#" id="nav-mystories">My Stories</a>
+      |<a class="main-nav-links" href="#" id="nav-myStories">My Stories</a>
     </span>
     <a class="nav-link nav-right" href="#" id="nav-login">login/create user</a>
     <span class="nav-link nav-right hidden" id="nav-welcome">
-      <a href="#" id="nav-user-profile"></a>
+      <a href="#" id="nav-userProfile"></a>
     </span>
     <a class="hidden" id="nav-logout" href="#">
       <small>(logout)</small>
     </a>
   </nav>
   <section class="articles-container container">
-    <form action="" class="hidden" id="submit-form">
+    <form action="" class="hidden" id="addStory">
       <div>
         <label for="author">author</label>
         <input id="author" required type="text" placeholder="author name">
@@ -45,12 +45,12 @@
       <hr>
     </form>
     <article>
-      <ol id="all-articles-list" class="articles-list">
+      <ol id="allStories" class="articles-list">
         <h3>Loading...</h3>
       </ol>
     </article>
     <article>
-      <ul id="favorited-articles" class="hidden articles-list">
+      <ul id="favorites" class="hidden articles-list">
       </ul>
     </article>
     <article>
@@ -58,7 +58,7 @@
       </ul>
     </article>
     <article>
-      <ul id="my-articles" class="hidden articles-list">
+      <ul id="myStories" class="hidden articles-list">
       </ul>
     </article>
   </section>
@@ -104,7 +104,7 @@
     </form>
   </section>
   <section class="container">
-    <section id="user-profile" class="hidden">
+    <section id="userProfile" class="hidden">
       <h4>User Profile</h4>
       <h5><b>Name:</b> <span id="profile-name"></span></h5>
       <h5><b>Username:</b> <span id="profile-username"></span></h5>

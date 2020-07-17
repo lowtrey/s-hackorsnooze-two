@@ -1,18 +1,18 @@
 $(async function () {
   // cache some selectors we'll be using quite a bit
-  const $allStoriesList = $("#all-articles-list");
-  const $addStoryForm = $("#submit-form");
+  const $allStoriesList = $("#allStories");
+  const $addStoryForm = $("#addStory");
   const $filteredArticles = $("#filtered-articles");
-  const $favoritedArticles = $("#favorited-articles");
+  const $favoritedArticles = $("#favorites");
   const $loginForm = $("#login-form");
   const $createAccountForm = $("#create-account-form");
-  const $ownStories = $("#my-articles");
+  const $ownStories = $("#myStories");
   const $navLeft = $("#nav-left");
   const $navLogin = $("#nav-login");
   const $navLogOut = $("#nav-logout");
   const $navWelcome = $("#nav-welcome");
-  const $navUser = $("#nav-user-profile");
-  const $userProfile = $("#user-profile");
+  const $navUser = $("#nav-userProfile");
+  const $userProfile = $("#userProfile");
 
   // global storyList variable
   let storyList = null;
@@ -21,6 +21,7 @@ $(async function () {
   let currentUser = null;
 
   await checkIfLoggedIn();
+  addNavHandlers();
 
   /**
    * Event listener for logging in.
@@ -116,51 +117,27 @@ $(async function () {
     $(this).addClass("active");
   });
 
-  /**
-   * Event handler for Navigation to Homepage
-   */
-  $("body").on("click", "#nav-all", async function () {
-    hideElements();
-    await generateStories();
-    $allStoriesList.show();
-  });
+  function addNavHandlers() {
+    const navElementIds = [
+      "allStories",
+      "favorites",
+      "myStories",
+      "userProfile",
+      "addStory",
+    ];
 
-  /**
-   * Event handler for Navigation to Add Story
-   */
-  $("body").on("click", "#nav-addstory", async function () {
-    hideElements();
-    await generateStories();
-    $allStoriesList.show();
-    $addStoryForm.slideDown();
-  });
+    for (let elementId of navElementIds) {
+      $("body").on("click", `#nav-${elementId}`, async function () {
+        hideElements();
+        await generateStories();
+        $(`#${elementId}`).show();
+      });
+    }
+  }
 
-  /**
-   * Event handler for Navigation to Favorites
-   */
-  $("body").on("click", "#nav-favorites", async function () {
-    hideElements();
-    await generateStories();
-    $favoritedArticles.show();
-  });
-
-  /**
-   * Event handler for Navigation to My Stories
-   */
-  $("body").on("click", "#nav-mystories", async function () {
-    hideElements();
-    await generateStories();
-    $ownStories.show();
-  });
-
-  /**
-   * Event handler for Navigation to User Profile
-   */
-  $("body").on("click", "#nav-user-profile", async function () {
-    hideElements();
-    await generateStories();
-    $userProfile.show();
-  });
+  // TODO: Create updateContent function that hides elements, generates stories,
+  //       and shows correct element
+  //       - pass in id of element to show
 
   /**
    * Event handler for Favoriting Articles
@@ -179,8 +156,7 @@ $(async function () {
   /**
    * Event handler for Deleting Articles
    */
-  $("body").on("click", "#my-articles #delete", async function (event) {
-    console.log("Deleted!");
+  $("body").on("click", "#myStories #delete", async function (event) {
     const deleteId = $(event.target).parent().attr("id");
     const response = await storyList.deleteStory(
       currentUser.loginToken,
