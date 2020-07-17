@@ -50,9 +50,9 @@ $(async function () {
     evt.preventDefault(); // no page refresh
 
     // grab the required fields
-    let name = $("#create-account-name").val();
-    let username = $("#create-account-username").val();
-    let password = $("#create-account-password").val();
+    const name = $("#create-account-name").val();
+    const username = $("#create-account-username").val();
+    const password = $("#create-account-password").val();
 
     // call the create method, which calls the API and then builds a new user instance
     const newUser = await User.create(username, password, name);
@@ -77,8 +77,7 @@ $(async function () {
     };
 
     // call the addStory method, which calls the API and returns a newly created story
-    const newStory = await storyList.addStory(currentUser, submittedStory);
-    console.log(newStory);
+    await storyList.addStory(currentUser, submittedStory);
 
     hideElements();
     $addStoryForm.trigger("reset");
@@ -110,13 +109,8 @@ $(async function () {
   });
 
   /**
-   * Event Handler for Active Nav Link
+   * Add Event Handler To Navigation Links
    */
-  $("nav a").on("click", function () {
-    $(this).closest("nav").find("a.active").removeClass("active");
-    $(this).addClass("active");
-  });
-
   function addNavHandlers() {
     const navElementIds = [
       "allStories",
@@ -126,18 +120,29 @@ $(async function () {
       "addStory",
     ];
 
+    // Add Click Handler To Each Element
     for (let elementId of navElementIds) {
-      $("body").on("click", `#nav-${elementId}`, async function () {
-        hideElements();
-        await generateStories();
-        $(`#${elementId}`).show();
+      const navLinkId = `#nav-${elementId}`;
+
+      $("body").on("click", navLinkId, () => {
+        updateContent(`#${elementId}`);
+
+        // Style Active Nav Link
+        $(navLinkId).closest("nav").find("a.active").removeClass("active");
+        $(navLinkId).addClass("active");
       });
     }
   }
 
-  // TODO: Create updateContent function that hides elements, generates stories,
-  //       and shows correct element
-  //       - pass in id of element to show
+  /**
+   * Hide elements, generate stories,
+   *  show element with passed in ID
+   */
+  async function updateContent(elementId) {
+    hideElements();
+    await generateStories();
+    $(elementId).show();
+  }
 
   /**
    * Event handler for Favoriting Articles
@@ -145,12 +150,9 @@ $(async function () {
   $("body").on("click", "#favorite", async function (event) {
     const favoriteId = $(event.target).parent().attr("id");
     const updatedUser = await currentUser.updateFavorites(favoriteId);
-
     currentUser = updatedUser;
 
-    hideElements();
-    await generateStories();
-    $allStoriesList.show();
+    updateContent("#allStories");
   });
 
   /**
@@ -158,17 +160,10 @@ $(async function () {
    */
   $("body").on("click", "#myStories #delete", async function (event) {
     const deleteId = $(event.target).parent().attr("id");
-    const response = await storyList.deleteStory(
-      currentUser.loginToken,
-      deleteId
-    );
+    await storyList.deleteStory(currentUser.loginToken, deleteId);
 
-    console.log(response);
-
-    hideElements();
     await checkIfLoggedIn();
-    await generateStories();
-    $allStoriesList.show();
+    updateContent("#allStories");
   });
 
   /**
@@ -187,7 +182,7 @@ $(async function () {
     await generateStories();
 
     if (currentUser) {
-      showElementsForLoggedInUser();
+      showInfoForLoggedInUser();
     }
   }
 
@@ -207,7 +202,7 @@ $(async function () {
     $allStoriesList.show();
 
     // update the navigation bar
-    showElementsForLoggedInUser();
+    showInfoForLoggedInUser();
   }
 
   /**
@@ -267,19 +262,20 @@ $(async function () {
    * A function to render HTML for an individual Story instance
    */
   function generateStoryHTML(story) {
-    let hostName = getHostName(story.url);
+    const hostName = getHostName(story.url);
+    const { author, storyId, title, url, username } = story;
 
     // render story markup
     const storyMarkup = $(`
-      <li id="${story.storyId}">
+      <li id="${storyId}">
         <i id="favorite" class="fas fa-star star"></i>
         <i id="delete" class="fas fa-trash trash-can"></i>
-        <a class="article-link" href="${story.url}" target="a_blank">
-          <strong>${story.title}</strong>
+        <a class="article-link" href="${url}" target="a_blank">
+          <strong>${title}</strong>
         </a>
-        <small class="article-author">by ${story.author}</small>
+        <small class="article-author">by ${author}</small>
         <small class="article-hostname ${hostName}">(${hostName})</small>
-        <small class="article-username">posted by ${story.username}</small>
+        <small class="article-username">posted by ${username}</small>
       </li>
     `);
 
@@ -301,16 +297,13 @@ $(async function () {
     elementsArr.forEach(($elem) => $elem.hide());
   }
 
-  function showElementsForLoggedInUser() {
+  function showInfoForLoggedInUser() {
     $navLogin.hide();
     $navLogOut.show();
     $navLeft.show();
-    $navUser.text(currentUser.username);
     $navWelcome.show();
-    showAccountInfo();
-  }
 
-  function showAccountInfo() {
+    $navUser.text(currentUser.username);
     $("#profile-name").text(currentUser.name);
     $("#profile-username").text(currentUser.username);
     $("#profile-account-date").text(currentUser.createdAt);
