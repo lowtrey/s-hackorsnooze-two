@@ -79,13 +79,8 @@ $(async function () {
     // call the addStory method, which calls the API and returns a newly created story
     await storyList.addStory(currentUser, submittedStory);
 
-    hideElements();
+    updateContent("#allStories");
     $addStoryForm.trigger("reset");
-    await checkIfLoggedIn();
-    $allStoriesList.show();
-
-    // TODO: Consolidate code above to loginAndSubmitForm fonction
-    // loginAndSubmitForm();
   });
 
   /**
@@ -140,7 +135,7 @@ $(async function () {
    */
   async function updateContent(elementId) {
     hideElements();
-    await generateStories();
+    await checkIfLoggedIn();
     $(elementId).show();
   }
 
@@ -212,44 +207,27 @@ $(async function () {
   async function generateStories() {
     // get an instance of StoryList
     const storyListInstance = await StoryList.getStories();
+
     // update our global variable
     storyList = storyListInstance;
+
     // empty out that part of the page
+    $favoritedArticles.empty();
     $allStoriesList.empty();
+    $ownStories.empty();
 
     // loop through all of our stories and generate HTML for them
     for (let story of storyList.stories) {
       const result = generateStoryHTML(story);
       $allStoriesList.append(result);
     }
-    generateOwnStories();
-    generateFavorites();
-  }
 
-  /**
-   * A function render the user's own stories.
-   */
-  function generateOwnStories() {
     if (currentUser) {
-      // empty out that part of the page
-      $ownStories.empty();
-
       // loop through all of our stories and generate HTML for them
       for (let story of currentUser.ownStories) {
         const result = generateStoryHTML(story);
         $ownStories.append(result);
       }
-    }
-  }
-
-  /**
-   * A function render the user's favorite stories.
-   */
-  function generateFavorites() {
-    if (currentUser) {
-      // empty out that part of the page
-      $favoritedArticles.empty();
-
       // loop through all of our stories and generate HTML for them
       for (let story of currentUser.favorites) {
         const result = generateStoryHTML(story);
