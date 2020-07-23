@@ -1,19 +1,4 @@
 $(async function () {
-  // cache some selectors we'll be using quite a bit
-  const $allStoriesList = $("#allStories");
-  const $addStoryForm = $("#addStory");
-  const $filteredArticles = $("#filtered-articles");
-  const $favoritedArticles = $("#favorites");
-  const $loginForm = $("#login-form");
-  const $createAccountForm = $("#create-account-form");
-  const $ownStories = $("#myStories");
-  const $navLeft = $("#nav-left");
-  const $navLogin = $("#nav-login");
-  const $navLogOut = $("#nav-logout");
-  const $navWelcome = $("#nav-welcome");
-  const $navUser = $("#nav-userProfile");
-  const $userProfile = $("#userProfile");
-
   // global storyList variable
   let storyList = null;
 
@@ -27,7 +12,7 @@ $(async function () {
    * Event listener for logging in.
    *  If successfully we will setup the user instance
    */
-  $loginForm.on("submit", async function (evt) {
+  $("#loginForm").on("submit", async function (evt) {
     evt.preventDefault();
 
     // grab the username and password
@@ -36,7 +21,7 @@ $(async function () {
 
     // call the login static method to build a user instance
     const userInstance = await User.login(username, password);
-    
+
     // set the global user to the user instance
     currentUser = userInstance;
     syncCurrentUserToLocalStorage();
@@ -47,7 +32,7 @@ $(async function () {
    * Event listener for signing up.
    *  If successfully we will setup a new user instance
    */
-  $createAccountForm.on("submit", async function (evt) {
+  $("#createAccountForm").on("submit", async function (evt) {
     evt.preventDefault(); // no page refresh
 
     // grab the required fields
@@ -67,7 +52,7 @@ $(async function () {
    *  If successfully we will add a new story to the all stories list
    *  and the user's own stories list.
    */
-  $addStoryForm.on("submit", async function (evt) {
+  $("#addStory").on("submit", async function (evt) {
     evt.preventDefault();
 
     // grab the required fields
@@ -81,13 +66,13 @@ $(async function () {
     await storyList.addStory(currentUser, submittedStory);
 
     updateContent("#allStories");
-    $addStoryForm.trigger("reset");
+    $("#addStory").trigger("reset");
   });
 
   /**
    * Log Out Functionality
    */
-  $navLogOut.on("click", function () {
+  $("#nav-logout").on("click", function () {
     // empty out local storage
     localStorage.clear();
     // refresh the page, clearing memory
@@ -97,11 +82,11 @@ $(async function () {
   /**
    * Event Handler for Clicking Login
    */
-  $navLogin.on("click", function () {
+  $("#nav-login").on("click", function () {
     // Show the Login and Create Account Forms
-    $loginForm.slideToggle();
-    $createAccountForm.slideToggle();
-    $allStoriesList.toggle();
+    $("#loginForm").slideToggle();
+    $("#createAccountForm").slideToggle();
+    $("#allStories").toggle();
   });
 
   /**
@@ -141,7 +126,7 @@ $(async function () {
   }
 
   /**
-   * Event handler for Favoriting Articles
+   * Event handler for Favoriting / Unfavoriting Articles
    */
   $("body").on("click", "#favorite", async function (event) {
     const favoriteId = $(event.target).parent().attr("id");
@@ -187,15 +172,15 @@ $(async function () {
    */
   function loginAndSubmitForm() {
     // hide the forms for logging in and signing up
-    $loginForm.hide();
-    $createAccountForm.hide();
+    $("#loginForm").hide();
+    $("#createAccountForm").hide();
 
     // reset those forms
-    $loginForm.trigger("reset");
-    $createAccountForm.trigger("reset");
+    $("#loginForm").trigger("reset");
+    $("#createAccountForm").trigger("reset");
 
     // show the stories
-    $allStoriesList.show();
+    $("#allStories").show();
 
     // update the navigation bar
     showInfoForLoggedInUser();
@@ -213,26 +198,26 @@ $(async function () {
     storyList = storyListInstance;
 
     // empty out that part of the page
-    $favoritedArticles.empty();
-    $allStoriesList.empty();
-    $ownStories.empty();
+    $("#favorites").empty();
+    $("#allStories").empty();
+    $("#myStories").empty();
 
     // loop through all of our stories and generate HTML for them
     for (let story of storyList.stories) {
       const result = generateStoryHTML(story);
-      $allStoriesList.append(result);
+      $("#allStories").append(result);
     }
 
     if (currentUser) {
       // loop through all of our stories and generate HTML for them
       for (let story of currentUser.ownStories) {
         const result = generateStoryHTML(story);
-        $ownStories.append(result);
+        $("#myStories").append(result);
       }
       // loop through all of our stories and generate HTML for them
       for (let story of currentUser.favorites) {
         const result = generateStoryHTML(story);
-        $favoritedArticles.append(result);
+        $("#favorites").append(result);
       }
     }
   }
@@ -263,26 +248,26 @@ $(async function () {
 
   /* hide all elements in elementsArr */
   function hideElements() {
-    const elementsArr = [
-      $addStoryForm,
-      $allStoriesList,
-      $favoritedArticles,
-      $filteredArticles,
-      $ownStories,
-      $loginForm,
-      $createAccountForm,
-      $userProfile,
+    const elementIdArr = [
+      "#addStory",
+      "#allStories",
+      "#favorites",
+      "#filtered",
+      "#myStories",
+      "#loginForm",
+      "#create-account-form",
+      "#userProfile",
     ];
-    elementsArr.forEach(($elem) => $elem.hide());
+    elementIdArr.forEach((elementId) => $(elementId).hide());
   }
 
   function showInfoForLoggedInUser() {
-    $navLogin.hide();
-    $navLogOut.show();
-    $navLeft.show();
-    $navWelcome.show();
+    $("#nav-login").hide();
+    $("#nav-logout").show();
+    $("#nav-left").show();
+    $("#nav-welcome").show();
 
-    $navUser.text(currentUser.username);
+    $("#nav-userProfile").text(currentUser.username);
     $("#profile-name").text(currentUser.name);
     $("#profile-username").text(currentUser.username);
     $("#profile-account-date").text(currentUser.createdAt);
