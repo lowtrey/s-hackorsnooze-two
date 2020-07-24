@@ -9,8 +9,34 @@ $(async function () {
   addNavHandlers();
 
   /**
+   * Add Event Handler To Navigation Links
+   */
+  function addNavHandlers() {
+    const navElementIds = [
+      "allStories",
+      "favorites",
+      "myStories",
+      "userProfile",
+      "addStory",
+    ];
+
+    // Add Click Handler To Each Element
+    for (let elementId of navElementIds) {
+      const navLinkId = `#nav-${elementId}`;
+
+      $("body").on("click", navLinkId, () => {
+        updateContent(`#${elementId}`);
+
+        // Style Active Nav Link
+        $(navLinkId).closest("nav").find("a.active").removeClass("active");
+        $(navLinkId).addClass("active");
+      });
+    }
+  }
+
+  /**
    * Event listener for logging in.
-   *  If successfully we will setup the user instance
+   *  If successful we will setup the user instance
    */
   $("#loginForm").on("submit", async function (evt) {
     evt.preventDefault();
@@ -30,7 +56,7 @@ $(async function () {
 
   /**
    * Event listener for signing up.
-   *  If successfully we will setup a new user instance
+   *  If successful we will setup a new user instance
    */
   $("#createAccountForm").on("submit", async function (evt) {
     evt.preventDefault(); // no page refresh
@@ -45,6 +71,26 @@ $(async function () {
     currentUser = newUser;
     syncCurrentUserToLocalStorage();
     loginAndSubmitForm();
+  });
+
+  /**
+   * Log Out Functionality
+   */
+  $("#nav-logout").on("click", function () {
+    // empty out local storage
+    localStorage.clear();
+    // refresh the page, clearing memory
+    location.reload();
+  });
+
+  /**
+   * Event Handler for Clicking Login
+   */
+  $("#nav-login").on("click", function () {
+    // Show the Login and Create Account Forms
+    $("#loginForm").slideToggle();
+    $("#createAccountForm").slideToggle();
+    $("#allStories").toggle();
   });
 
   /**
@@ -74,63 +120,7 @@ $(async function () {
   });
 
   /**
-   * Log Out Functionality
-   */
-  $("#nav-logout").on("click", function () {
-    // empty out local storage
-    localStorage.clear();
-    // refresh the page, clearing memory
-    location.reload();
-  });
-
-  /**
-   * Event Handler for Clicking Login
-   */
-  $("#nav-login").on("click", function () {
-    // Show the Login and Create Account Forms
-    $("#loginForm").slideToggle();
-    $("#createAccountForm").slideToggle();
-    $("#allStories").toggle();
-  });
-
-  /**
-   * Add Event Handler To Navigation Links
-   */
-  function addNavHandlers() {
-    const navElementIds = [
-      "allStories",
-      "favorites",
-      "myStories",
-      "userProfile",
-      "addStory",
-    ];
-
-    // Add Click Handler To Each Element
-    for (let elementId of navElementIds) {
-      const navLinkId = `#nav-${elementId}`;
-
-      $("body").on("click", navLinkId, () => {
-        updateContent(`#${elementId}`);
-
-        // Style Active Nav Link
-        $(navLinkId).closest("nav").find("a.active").removeClass("active");
-        $(navLinkId).addClass("active");
-      });
-    }
-  }
-
-  /**
-   * Hide elements, generate stories,
-   *  show element with passed in ID
-   */
-  async function updateContent(elementId) {
-    hideElements();
-    await checkIfLoggedIn();
-    $(elementId).show();
-  }
-
-  /**
-   * Event handler for Favoriting / Unfavoriting Articles
+   * Event handler for Favoriting / Unfavoriting Story
    */
   $("body").on("click", "#favorite", async function (event) {
     const favoriteId = $(event.target).parent().attr("id");
@@ -145,7 +135,7 @@ $(async function () {
   });
 
   /**
-   * Event handler for Deleting Articles
+   * Event handler for Deleting Stories
    */
   $("body").on("click", "#myStories #delete", async function (event) {
     const deleteId = $(event.target).parent().attr("id");
@@ -164,13 +154,12 @@ $(async function () {
    * Renders page information accordingly.
    */
   async function checkIfLoggedIn() {
-    // let's see if we're logged in
+    // Check localStorage for login info
     const token = localStorage.getItem("token");
     const username = localStorage.getItem("username");
 
     // if there is a token in localStorage, call User.getLoggedInUser
     //  to get an instance of User with the right details
-    //  this is designed to run once, on page load
     currentUser = await User.getLoggedInUser(token, username);
     await generateStories();
 
@@ -200,7 +189,8 @@ $(async function () {
 
   /**
    * A rendering function to call the StoryList.getStories static method,
-   *  which will generate a storyListInstance. Then render it.
+   * which will generate a storyListInstance. Then append each Story to the DOM.
+   * If there is a current user, append own stories and favorites as well
    */
   async function generateStories() {
     // get an instance of StoryList
@@ -221,12 +211,11 @@ $(async function () {
     }
 
     if (currentUser) {
-      // loop through all of our stories and generate HTML for them
+      // loop through user's own stories and favorites
       for (let story of currentUser.ownStories) {
         const result = generateStoryHTML(story, false, true);
         $("#myStories").append(result);
       }
-      // loop through all of our stories and generate HTML for them
       for (let story of currentUser.favorites) {
         const result = generateStoryHTML(story, true);
         $("#favorites").append(result);
@@ -240,12 +229,14 @@ $(async function () {
   function generateStoryHTML(story, isFavorite = false, isOwnStory = false) {
     const hostName = getHostName(story.url);
     const { author, storyId, title, url, username } = story;
+
+    // Conditional rendering of delete and favorite icons
     const deleteClass = isOwnStory ? "fas fa-trash trash-can" : "hidden";
     const favoriteClass = isFavorite
       ? "fas fa-star star favorited"
       : "fas fa-star star";
 
-    // render story markup
+    // Render story markup
     const storyMarkup = $(`
       <li id="${storyId}">
         <i id="favorite" class="${favoriteClass}"></i>
@@ -262,7 +253,17 @@ $(async function () {
     return storyMarkup;
   }
 
-  /* hide all elements in elementsArr */
+  /**
+   * Hide elements, generate stories,
+   *  show element with passed in ID
+   */
+  async function updateContent(elementId) {
+    hideElements();
+    await checkIfLoggedIn();
+    $(elementId).show();
+  }
+
+  /* Hide all elements in elementIdArr */
   function hideElements() {
     const elementIdArr = [
       "#addStory",
@@ -289,7 +290,7 @@ $(async function () {
     $("#profile-account-date").text(currentUser.createdAt);
   }
 
-  /* simple function to pull the hostname from a URL */
+  /* Function to pull the hostname from a URL */
   function getHostName(url) {
     let hostName;
     if (url.indexOf("://") > -1) {
@@ -303,7 +304,7 @@ $(async function () {
     return hostName;
   }
 
-  /* sync current user information to localStorage */
+  /* Sync current user information to localStorage */
   function syncCurrentUserToLocalStorage() {
     if (currentUser) {
       localStorage.setItem("token", currentUser.loginToken);

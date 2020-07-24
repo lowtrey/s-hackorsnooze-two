@@ -17,7 +17,6 @@ class StoryList {
    *  - makes a single StoryList instance out of that
    *  - returns the StoryList instance.*
    */
-
   static async getStories() {
     // query the /stories endpoint (no auth required)
     const response = await axios.get(`${BASE_URL}/stories`);
@@ -37,12 +36,8 @@ class StoryList {
    *
    * Returns the new story object
    */
-
   async addStory(user, newStory) {
     if (!user || !newStory) return null;
-    // TODO - Implement this functions!
-    // this function should return the newly created story so it can be used in
-    // the script.js file where it will be appended to the DOM
     const response = await axios.post(`${BASE_URL}/stories`, {
       token: user.loginToken,
       story: newStory,
@@ -51,6 +46,13 @@ class StoryList {
     return response;
   }
 
+  /**
+   * Method to make a DELETE request to /stories and remove the story from the list
+   * - token - the current loginToken of User who will delete the story
+   * - storyId - the id of the story to be removed
+   *
+   * Returns the response object
+   */
   async deleteStory(token, storyId) {
     if (!storyId) return null;
 
@@ -89,7 +91,6 @@ class User {
    * - password: a new password
    * - name: the user's full name
    */
-
   static async create(username, password, name) {
     const response = await axios.post(`${BASE_URL}/signup`, {
       user: {
@@ -113,7 +114,6 @@ class User {
    * - username: an existing user's username
    * - password: an existing user's password
    */
-
   static async login(username, password) {
     const response = await axios.post(`${BASE_URL}/login`, {
       user: {
