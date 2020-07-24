@@ -65,8 +65,12 @@ $(async function () {
     // call the addStory method, which calls the API and returns a newly created story
     await storyList.addStory(currentUser, submittedStory);
 
-    updateContent("#allStories");
+    updateContent("#myStories");
     $("#addStory").trigger("reset");
+
+    // Style Active Nav Link
+    $("#nav-addStory").removeClass("active");
+    $("#nav-myStories").addClass("active");
   });
 
   /**
@@ -133,7 +137,11 @@ $(async function () {
     const updatedUser = await currentUser.updateFavorites(favoriteId);
     currentUser = updatedUser;
 
-    updateContent("#allStories");
+    updateContent("#favorites");
+
+    // Style Active Nav Link
+    $("#nav-allStories").removeClass("active");
+    $("#nav-favorites").addClass("active");
   });
 
   /**
@@ -144,7 +152,11 @@ $(async function () {
     await storyList.deleteStory(currentUser.loginToken, deleteId);
 
     await checkIfLoggedIn();
-    updateContent("#allStories");
+    updateContent("#myStories");
+
+    // Style Active Nav Link
+    $("#nav-allStories").removeClass("active");
+    $("#nav-myStories").addClass("active");
   });
 
   /**
@@ -211,12 +223,12 @@ $(async function () {
     if (currentUser) {
       // loop through all of our stories and generate HTML for them
       for (let story of currentUser.ownStories) {
-        const result = generateStoryHTML(story);
+        const result = generateStoryHTML(story, false, true);
         $("#myStories").append(result);
       }
       // loop through all of our stories and generate HTML for them
       for (let story of currentUser.favorites) {
-        const result = generateStoryHTML(story);
+        const result = generateStoryHTML(story, true);
         $("#favorites").append(result);
       }
     }
@@ -225,15 +237,19 @@ $(async function () {
   /**
    * A function to render HTML for an individual Story instance
    */
-  function generateStoryHTML(story) {
+  function generateStoryHTML(story, isFavorite = false, isOwnStory = false) {
     const hostName = getHostName(story.url);
     const { author, storyId, title, url, username } = story;
+    const deleteClass = isOwnStory ? "fas fa-trash trash-can" : "hidden";
+    const favoriteClass = isFavorite
+      ? "fas fa-star star favorited"
+      : "fas fa-star star";
 
     // render story markup
     const storyMarkup = $(`
       <li id="${storyId}">
-        <i id="favorite" class="fas fa-star star"></i>
-        <i id="delete" class="fas fa-trash trash-can"></i>
+        <i id="favorite" class="${favoriteClass}"></i>
+        <i id="delete" class="${deleteClass}"></i>
         <a class="article-link" href="${url}" target="a_blank">
           <strong>${title}</strong>
         </a>

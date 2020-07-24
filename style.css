@@ -167,6 +167,10 @@ form > hr {
   color: darkblue;
 }
 
+.favorited {
+  color: gold;
+}
+
 .article-link > strong {
   color: black;
   font-size: 0.85rem;
@@ -217,8 +221,7 @@ form > hr {
   margin: 10px 0;
 }
 
-/** responsive queries for tightening things up for mobile. */
-
+/** Mobile Responsive Queries */
 @media screen and (max-width: 576px) {
   body {
     margin: 0;
