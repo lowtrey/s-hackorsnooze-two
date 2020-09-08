@@ -1,3 +1,5 @@
+// TODO: change anonymous funcs to named for event listeners
+
 $(async function () {
   // global storyList variable
   let storyList = null;
